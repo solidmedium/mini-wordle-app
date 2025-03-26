@@ -26,13 +26,19 @@ export default function Home() {
   };
 
   const RenderRows = () => {
-    return wordArray.map((row, index) => {
-      return (
-        <div className="flex space-2 my-5 justify-between" key={index}>
-          <RenderWords  word={row} />
+    return (
+      wordArray.length > 0 ? (
+        wordArray.map((row, index) => (
+          <div className="flex space-2 my-5 justify-between" key={index}>
+            <RenderWords  word={row} />
+          </div>
+        ))
+      ) : (
+        <div className="flex space-2 my-5 justify-between">
+          <RenderWords word={'-----'} />
         </div>
-      );
-    });
+      )
+    );
   };
 
   const RenderWords = (word: { word: string }) => {
@@ -55,7 +61,7 @@ export default function Home() {
         <h1 className="text-4xl mb-3">Guess the word</h1>
         <div className="flex w-full max-w-sm items-center space-x-2">
           <Input onChange={(e) => handleOnchange(e)} maxLength={5} minLength={5} value={guess} className="uppercase" />
-          <Button onClick={() => handleSubmit()}>Submit</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
         </div>
         {errorMessage && <p className="text-red-500 my-3">{errorMessage}</p>}
         <RenderRows />
