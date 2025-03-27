@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
-  AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
 import { AlertCircle } from 'lucide-react';
@@ -26,13 +25,26 @@ export default function Game() {
 
   useEffect(() => {
     if(gameState === GameState.Welcome) {
-      const answers = ['TABLE', 'CHAIR', 'LAMPS', 'COUCH', 'SHELF', 'CLOCK'];
+      const answers = ['TABLE', 'CHAIR', 'LAMPS', 'COUCH', 'SHELF', 'CLOCK'] as const;
       const randomIndex = Math.floor(Math.random() * answers.length);
       setAnswer(answers[randomIndex]);
     } else if (gameState === GameState.PlayerWins) {
       setErrorMessage('You win');
+      setTimeout(() => {
+        setErrorMessage('');
+        setWordArray([]);
+        setGuess('');
+        setGameState(GameState.Welcome);
+      }, 3000);
     } else if (gameState === GameState.GameOver) {
       setErrorMessage('Game Over');
+      setTimeout(() => {
+        setErrorMessage('');
+        setWordArray([]);
+        setGuess('');
+        setGameState(GameState.Welcome);
+      }, 3000);
+
     }
   }, [gameState]);
 
@@ -53,17 +65,20 @@ export default function Game() {
     setGuess('');
   };
 
-  const AlertDestructive = ({ children }: { children: string }) => {
+  const AlertComponent = ({ children, type }: { children: string, type?: "default" | "destructive" | null | undefined }) => {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          {children}
-        </AlertDescription>
+      <Alert className='mt-2' variant={type}>
+        {type === 'destructive' && <AlertCircle className="h-4 w-4" />}
+        <AlertTitle>{children}</AlertTitle>
       </Alert>
     )
   }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
 
   const RenderRows = () => {
     return (
@@ -116,11 +131,12 @@ export default function Game() {
     <div className="flex items-center justify-center h-screen bg-slate-100">
       <div className="max-w-[400px] min-h-[500px] mx-auto p-4">
         <h1 className="text-4xl mb-3">Guess the word</h1>
+        <p className="mb-3">Guesses left: {5 - wordArray.length}</p>
         <div className="flex w-full max-w-sm items-center space-x-2">
-          <Input onChange={(e) => handleOnchange(e)} maxLength={5} minLength={5} value={guess} className="uppercase" />
+          <Input onChange={(e) => handleOnchange(e)} onKeyUp={handleKeyPress} maxLength={5} minLength={5} value={guess} className="uppercase" />
           <Button onClick={handleSubmit}>Submit</Button>
         </div>
-        {errorMessage && <AlertDestructive>{errorMessage}</AlertDestructive>}
+        {errorMessage && <AlertComponent type={gameState === GameState.PlayerWins ? null : 'destructive'}>{errorMessage}</AlertComponent>}
         <RenderRows />
       </div>
     </div>
