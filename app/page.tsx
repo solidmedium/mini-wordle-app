@@ -7,7 +7,7 @@ import {
   Alert,
   AlertTitle,
 } from "@/components/ui/alert"
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCheckIcon } from 'lucide-react';
 
 enum GameState {
   Welcome = 'welcome',
@@ -67,8 +67,8 @@ export default function Game() {
 
   const AlertComponent = ({ children, type }: { children: string, type?: "default" | "destructive" | null | undefined }) => {
     return (
-      <Alert className='mt-2' variant={type}>
-        {type === 'destructive' && <AlertCircle className="h-4 w-4" />}
+      <Alert className={`mt-5 ${type !== 'destructive' ? 'bg-green-100' : ''}`} variant={type}>
+        {type === 'destructive' ? <AlertCircle className="h-4 w-4" /> : <CheckCheckIcon className="h-4 w-4" />}
         <AlertTitle>{children}</AlertTitle>
       </Alert>
     )
@@ -101,7 +101,7 @@ export default function Game() {
     const splitAnswer = answer.split('');
     console.log('answer', answer)
 
-    if (wordArray.length > 4) {
+    if (wordArray.length > 5) {
       setGameState(GameState.GameOver);
       return;
     };
