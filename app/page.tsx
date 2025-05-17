@@ -23,32 +23,44 @@ export default function Game() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [gameState, setGameState] = useState<GameState>(GameState.Welcome);
 
-  useEffect(() => {
-    if(gameState === GameState.Welcome) {
-      const answers = ['TABLE', 'CHAIR', 'LAMPS', 'COUCH', 'SHELF', 'CLOCK'] as const;
-      const randomIndex = Math.floor(Math.random() * answers.length);
-      setAnswer(answers[randomIndex]);
-    } else if (gameState === GameState.PlayerWins) {
-      setErrorMessage('You win');
-      setTimeout(() => {
-        setErrorMessage('');
-        setWordArray([]);
-        setGuess('');
-        setGameState(GameState.Welcome);
-      }, 3000);
-    } else if (gameState === GameState.GameOver) {
-      setErrorMessage('Game Over');
-      setTimeout(() => {
-        setErrorMessage('');
-        setWordArray([]);
-        setGuess('');
-        setGameState(GameState.Welcome);
-      }, 3000);
-
+  const fetchRandomWords = async () => {
+    try {
+      const response = await fetch('https://random-word-api.vercel.app/api?words=10&length=5&type=uppercase');
+      const words = await response.json();
+      return words;
+    } catch (error) {
+      console.error('Error fetching random words:', error);
+      return ['TABLE', 'CHAIR', 'LAMPS', 'COUCH', 'SHELF', 'CLOCK']; // Fallback words
     }
+  };
+
+  useEffect(() => {
+    const initializeGame = async () => {
+      if (gameState === GameState.Welcome) {
+        const words = await fetchRandomWords();
+        const randomIndex = Math.floor(Math.random() * words.length);
+        setAnswer(words[randomIndex]);
+      } else if (gameState === GameState.PlayerWins) {
+        setErrorMessage('You win');
+        setTimeout(() => {
+          setErrorMessage('');
+          setWordArray([]);
+          setGuess('');
+          setGameState(GameState.Welcome);
+        }, 3000);
+      } else if (gameState === GameState.GameOver) {
+        setErrorMessage('Game Over');
+        setTimeout(() => {
+          setErrorMessage('');
+          setWordArray([]);
+          setGuess('');
+          setGameState(GameState.Welcome);
+        }, 3000);
+      }
+    };
+
+    initializeGame();
   }, [gameState]);
-
-
 
   const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGameState(GameState.Playing);
@@ -85,7 +97,7 @@ export default function Game() {
       wordArray.length > 0 ? (
         wordArray.map((row, index) => (
           <div className="flex space-2 my-5 justify-between" key={index}>
-            <RenderWords  word={row} />
+            <RenderWords word={row} />
           </div>
         ))
       ) : (
